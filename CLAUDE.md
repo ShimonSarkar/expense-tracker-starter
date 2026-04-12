@@ -16,17 +16,19 @@ There is no test suite in this project.
 
 ## Architecture
 
-This is a single-page React app (Vite + React 19) with all logic in one file: `src/App.jsx`.
+This is a single-page React app (Vite + React 19) decomposed into four components:
 
-**State** lives entirely in `App` via `useState`:
-- `transactions` — array of `{ id, description, amount, type, category, date }`. `amount` is stored as a **string**, which causes a known bug: `reduce` concatenates strings instead of summing numbers, so totals display incorrectly.
-- Form fields: `description`, `amount`, `type`, `category`
-- Filter state: `filterType`, `filterCategory`
+- `src/App.jsx` — root component; holds `transactions` state and passes it down
+- `src/Summary.jsx` — computes and displays `totalIncome`, `totalExpenses`, and `balance` from `transactions` prop
+- `src/TransactionForm.jsx` — owns its own form state (`description`, `amount`, `type`, `category`); calls `onAdd(transaction)` prop on submit
+- `src/TransactionList.jsx` — owns its own filter state (`filterType`, `filterCategory`); receives `transactions` prop and renders a filtered `<table>`
 
-**Data flow**: transactions are filtered in the render body (no memoization), then rendered into a `<table>`. The summary cards compute `totalIncome`, `totalExpenses`, and `balance` directly from `transactions` state.
+**State ownership:**
+- `transactions` (array of `{ id, description, amount, type, category, date }`) lives in `App`; `amount` is a number
+- Form and filter state are local to their respective components
 
-**Intentional issues** (course material — fix these as exercises):
-- `amount` stored as string → broken arithmetic in `totalIncome`/`totalExpenses`/`balance`
+**Data flow**: `App` passes `transactions` to `Summary` and `TransactionList`, and an `onAdd` callback to `TransactionForm`. No memoization.
+
+**Intentional issue** (course material — fix as exercise):
 - "Freelance Work" seed entry is typed as `"expense"` but categorized as `"salary"` (logical mismatch)
-- No component decomposition — everything is in `App`
 - Minimal styling via `src/App.css` and `src/index.css`
