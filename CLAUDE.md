@@ -21,14 +21,19 @@ This is a single-page React app (Vite + React 19) decomposed into four component
 - `src/App.jsx` — root component; holds `transactions` state and passes it down
 - `src/Summary.jsx` — computes and displays `totalIncome`, `totalExpenses`, and `balance` from `transactions` prop
 - `src/TransactionForm.jsx` — owns its own form state (`description`, `amount`, `type`, `category`); calls `onAdd(transaction)` prop on submit
-- `src/TransactionList.jsx` — owns its own filter state (`filterType`, `filterCategory`); receives `transactions` prop and renders a filtered `<table>`
+- `src/TransactionList.jsx` — owns filter state (`filterType`, `filterCategory`) and delete confirmation state (`confirmId`); receives `transactions` and `onDelete` props; renders a filtered `<table>` and a custom modal for delete confirmation
 
 **State ownership:**
-- `transactions` (array of `{ id, description, amount, type, category, date }`) lives in `App`; `amount` is a number
+- `transactions` (array of `{ id, description, amount, type, category, date }`) lives in `App`; `amount` is always a number
 - Form and filter state are local to their respective components
+- `confirmId` (the id of the transaction pending deletion, or `null`) is local to `TransactionList`
 
-**Data flow**: `App` passes `transactions` to `Summary` and `TransactionList`, and an `onAdd` callback to `TransactionForm`. No memoization.
+**Data flow**: `App` passes `transactions` to `Summary` and `TransactionList`, an `onAdd` callback to `TransactionForm`, and an `onDelete` callback to `TransactionList`. No memoization.
+
+**Key implementation details:**
+- `TransactionForm` calls `parseFloat(amount)` before passing to `onAdd` so the stored value is always a number
+- Delete confirmation uses a custom in-page modal (not `window.confirm`); clicking the overlay dismisses it
+- All styling lives in `src/App.css` — includes CSS animations (`fadeIn`, `modalIn`, `overlayIn`), hover transitions, and a blur backdrop for the modal
 
 **Intentional issue** (course material — fix as exercise):
 - "Freelance Work" seed entry is typed as `"expense"` but categorized as `"salary"` (logical mismatch)
-- Minimal styling via `src/App.css` and `src/index.css`

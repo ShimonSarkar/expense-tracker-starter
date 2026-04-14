@@ -5,6 +5,7 @@ const categories = ["food", "housing", "utilities", "transport", "entertainment"
 function TransactionList({ transactions, onDelete }) {
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
+  const [confirmId, setConfirmId] = useState(null);
 
   let filtered = transactions;
   if (filterType !== "all") {
@@ -13,6 +14,8 @@ function TransactionList({ transactions, onDelete }) {
   if (filterCategory !== "all") {
     filtered = filtered.filter(t => t.category === filterCategory);
   }
+
+  const transactionToDelete = transactions.find(t => t.id === confirmId);
 
   return (
     <div className="transactions">
@@ -53,9 +56,7 @@ function TransactionList({ transactions, onDelete }) {
               <td>
                 <button
                   className="delete-btn"
-                  onClick={() => {
-                    if (window.confirm(`Delete "${t.description}"?`)) onDelete(t.id);
-                  }}
+                  onClick={() => setConfirmId(t.id)}
                 >
                   Delete
                 </button>
@@ -64,6 +65,24 @@ function TransactionList({ transactions, onDelete }) {
           ))}
         </tbody>
       </table>
+
+      {confirmId !== null && (
+        <div className="modal-overlay" onClick={() => setConfirmId(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h3>Delete Transaction</h3>
+            <p>Are you sure you want to delete <strong>"{transactionToDelete?.description}"</strong>? This cannot be undone.</p>
+            <div className="modal-actions">
+              <button className="modal-cancel" onClick={() => setConfirmId(null)}>Cancel</button>
+              <button
+                className="modal-confirm"
+                onClick={() => { onDelete(confirmId); setConfirmId(null); }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

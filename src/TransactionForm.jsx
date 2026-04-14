@@ -15,7 +15,7 @@ function TransactionForm({ onAdd }) {
     onAdd({
       id: Date.now(),
       description,
-      amount,
+      amount: parseFloat(amount),
       type,
       category,
       date: new Date().toISOString().split('T')[0],
